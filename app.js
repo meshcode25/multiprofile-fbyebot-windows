@@ -56,10 +56,10 @@ async function runAutomation() {
         
         // Import your own module (also must be CommonJS!)
         // // you’ll need to update these files too
-        const { postTogroups } = require('./posttogroups.js'); 
+        // const { postTogroups } = require('./posttogroups.js'); 
         // const { listInmorePlaces }= require('./listinmoreplaces.js');
         
-        // const { createMarketplaceListing } =require( './listonmarketplace.js');
+        const { createMarketplaceListing } =require( './listonmarketplace.js');
         
         
         
@@ -123,7 +123,7 @@ async function runAutomation() {
                   
                   // await killchromes()
                 console.log("Waited 10 Seconds")
-                await killchromes()
+                // await killchromes()
 
 
 
@@ -135,8 +135,8 @@ async function runAutomation() {
         
         
         
-                const dataFile = path.join(os.homedir(), '.einrichten_date.json');
-                const max = 14
+                const dataFile = path.join(os.homedir(), '.eingerichtet.json');
+                const max = 31
         
                 function getTageSince(dateStr) {
                     const einrichten = new Date(dateStr);
@@ -259,7 +259,7 @@ async function runAutomation() {
                 }
         
         
-                function getAppDataDir(appName = 'multiprofile-fbyebot-groups') {
+                function getAppDataDir(appName = 'fbsellify') {
                     const home = os.homedir();
         
                     if (platform === 'win32') {
@@ -295,228 +295,38 @@ async function runAutomation() {
 
 
 
-
-               //LIst of profiles to use 
-               const userprofiles=[
-                    "Default","Profile 10","Profile 2","Profile 12", "Profile 11","Profile 1",
-                ]
-                // "Profile 3","Profile 4","Profile 5",
-                // "Profile 6","Profile 7","Profile 8","Profile 9","Profile 12","Profile 10", 
-                // "Profile 11","Profile 12","Profile 13","Profile 14","Profile 15",
-                // "Profile 16","Profile 17","Profile 18","Profile 19","Profile 20"
+                const home=os.homedir();
 
 
-                for(const userprofile of userprofiles){
-                    const chromeUserProfile = path.join(chromeUserDataDir, userprofile)
-                    
-                    if(!fs.existsSync(chromeUserProfile)){
-                        fs.mkdirSync(chromeUserProfile,{recursive:true});
-                        console.log(" chromeUserProfile  not Found, Just Created a new chromeUserDataDir  in ", chromeUserProfile );
-                    }
-                
-                    console.log("chromeUserProfile path Found at "  , chromeUserProfile, " Continue... ")
-                    fs.chmodSync(chromeUserProfile,0o755)
-                
-                }
-        
-
-                // Function to get the current profile index based on a 3-hour rotation
-                function getRotatedIndex() {
-                    const totalProfiles = userprofiles.length;
-                    const now = new Date();
-                    return Math.floor(now.getHours() / 1.99) % totalProfiles; // Change the profile every 3 hours
-                }
-        
-                // // Function to get the current profile index based on a 10 MInuts for testing -hour rotation
-                // function getRotatedIndex() {
-                //     const totalProfiles = userprofiles.length;
-                //     const now = new Date();
-                //     return Math.floor( (now.getMinutes()) / 1.9) % totalProfiles; // Change the profile every 3 hours
-                // }
-        
-
-            
-
-
-
-                //get profile index
-                const profileIndex=getRotatedIndex();
-                console.log("\n Here isthe Index to select Profile Index " + profileIndex)
-        
-
-
-
-                console.log('\n 🚀 Launching Chrome with Playwright Persistent Storage... First here is the Chrome Path  '   ,chromePath , 'Here is the user--data-dir ' + chromeUserDataDir, "and here is the profile-diretory  " + userprofiles[profileIndex]);
-        
-
-
-
-                const userDataDir = path.join(chromeUserDataDir,userprofiles[profileIndex])
-                
-                const browser= await chromium.launchPersistentContext(userDataDir, {
-                  headless: false,
-                  executablePath: chromePath,
-                  args: [
-                    '--disable-notifications',
-                    '--disable-blink-features=AutomationControlled',
-                    '--disable-infobars',
-                    '--no-sandbox', // Use with caution, understand the security implications
-                    '--disable-setuid-sandbox',
-                    '--disable-dev-shm-usage',
-                    '--ignore-certificate-errors',
-                    '--ignore-ssl-errors',
-                    '--disable-extensions', // Sometimes extensions can interfere
-                    '--disable-component-extensions-with-background-pages',
-                  ]
-                });
-                
-                // Continue with automation using `browserContext.pages()[0]` or `browserContext.newPage()`
-                
-
-
-        
-                //launch new page
-                const page=await browser.newPage();
-                
-                console.log("Waiting for 10 Seconds for fun")
-
-                await page.evaluate(async ()=>{
-                    return new Promise(resolve => setTimeout(resolve, 10000))
-                })
-                // setTimeout(new Promise(resolve)30000)
-                // // find the page with the new-tab URL
-                // for (const context of browser.contexts()) {
-                //     for (const p of context.pages()) {
-                //         if (p.url() === 'chrome://new-tab-page/') {
-                //             console.log('🎯 Found clean launch tab, using this page.');
-                //             page = p;
-                //             break;
-                //         }
-                //     }
-                //     if (page) break;
-                // }
-                
-                // // fallback: if no new-tab-page found, just use the first context
-                // if (!page) {
-                //     console.warn('⚠️ No new-tab page found. Defaulting to new page in first context.');
-                //     const context = browser.contexts()[0];
-                //     page = await context.newPage();
-                // }
-                
-                // // await page.goto('https://facebook.com');
-                
-        
-                
-                
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-                
-        
-                // console.log("Here is the needed context ", context)
-                
-                // const page = await context.newPage();
-        
-                console.log('🧭 Page:', page.url());
-                
-                await page.goto('https://www.facebook.com/', { waitUntil: 'domcontentloaded', timeout:60000 });
-        
-                
-
-
-                const url = page.url();
-                
-                try{
-                    // await page.wait
-
-                    //  Wait and click on first result.
-                
-                    await page.waitForSelector("a[aria-label='Home'][role='link']")
-            
-                    console.log('✅ Already logged in to FACEBOOK!');
-                }
-                catch(err){
-                    if(err.name==="TimeoutError"){
-                        console.log('❌ Not logged in to Facebook! Kindly Check the Browser and Login');
-                    }
-                }
-
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-                // const page = await browser.newPage();
-                
-                
-                        
-                // await page.setExtraHTTPHeaders({ 'Accept-Language': 'en-US' });
-                // await page.emulateTimezone('America/Phoenix');
-                // await page.setGeolocation({ latitude: 33.4484, longitude: -112.0740 });
-        
-        
-        
-                // // Enable popup blocker
-                // await page.setPopupBlockerEnabled(true);
-                
-        
-        
-        
-                // Set screen size.
-                // await page.setViewportSize  ({width: 1500, height: 700});
-        
-        
-                // // // Allow notifications for the page
-                // const context = browser.defaultBrowserContext();
-                // await context.overridePermissions('https://facebook.com/', ['notifications']);
-        
-        
-        
-        
-        
-            
                 // Where to store user files (can be current dir or ~/.config/appname)
-                const envPath = path.join(appDir, '.env');
+                const envDir = path.join(home, "Tüm ürünler klasörünüzün yolu");
+
+                // Create the directory if it's missing
+                if (!fs.existsSync(envDir)) {
+                    fs.mkdirSync(envDir, { recursive: true });
+                    console.log(`\nCreated directory for allproducts root folder paths: ${envDir}`);
+                }
+                fs.chmodSync(envDir,0o755)
+
+
+                // Where to store user files (can be current dir or ~/.config/appname)
+                const envPath = path.join(envDir ,'.env');
                 const cookiesPath = path.join(appDir, 'cookies.json');  
                 
                
                 // Create default .env if missing
                 if (!fs.existsSync(envPath)) {
-                    fs.writeFileSync(envPath, 'EMAIL=\nPASSWORD=\nYOURPRODUCTSROOTFOLDER=\n');
-                    console.log('\n⛔ .env file created. Go to your home folder then search for .config or APPDATA(if in windows) then then it and look for folder called fbyebot-us-2.0 click it then ctr+H(linux) Ctr+Shift+ . (windows) command+shift+ .(macos) to show hidden files then click on the .env and then kindly fill up the path to your products folder.');
+                    // Create default .env if missing
+
+                    // Define the content with a newline character (\n)
+                    const envContent = `root="Tüm ürünler klasörünüzün yolu"\nlicenseKey="Lisans Anahtarınızı Girin"`;
+
+                    // Write the content to the file
+                    fs.writeFileSync(envPath, envContent);
+
+
+                    // fs.writeFileSync(envPath, 'root="Tüm ürünler klasörünüzün yolu"');
+                    console.log('\n \n ⛔ .env dosyası oluşturuldu. Lütfen ana klasörünüze gidip Tüm ürünler klasörünüzün yolu klasörünü arayın ve ardından .env dosyasındaki tüm ürünler klasörünüzün yolunu doldurun."')
         
                 }
                 fs.chmodSync(envPath,0o755)
@@ -557,52 +367,305 @@ async function runAutomation() {
                 }
         
         
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+               //LIst of profiles to use 
+               const userprofiles=[
+                   "Profile 40", //Tito's account to me
+                //    "Default", //Ken Lopez Facebook Account 
+
+                ]   
+
+
+
+
+                for(const userprofile of userprofiles){
+                    const chromeUserProfile = path.join(chromeUserDataDir, userprofile)
+                    
+                    if(!fs.existsSync(chromeUserProfile)){
+                        fs.mkdirSync(chromeUserProfile,{recursive:true});
+                        console.log(" chromeUserProfile  not Found, Just Created a new chromeUserDataDir  in ", chromeUserProfile );
+                    }
+                
+                    console.log("chromeUserProfile path Found at "  , chromeUserProfile, " Continue... ")
+                    fs.chmodSync(chromeUserProfile,0o755)
+                
+                }
         
+
+                // Function to get the current profile index based on a 3-hour rotation
+                function getRotatedIndex() {
+                    const totalProfiles = userprofiles.length;
+                    const now = new Date();
+                    return Math.floor(now.getHours() / 12.99) % totalProfiles; // Change the profile every 3 hours
+                }
+        
+                // // Function to get the current profile index based on a 10 MInuts for testing -hour rotation
+                // function getRotatedIndex() {
+                //     const totalProfiles = userprofiles.length;
+                //     const now = new Date();
+                //     return Math.floor( now.getMinutes() / 11.9) % totalProfiles; // Change the profile every 3 hours
+                // }
+        
+
+            
+
+
+
+                //get profile index
+                const profileIndex=getRotatedIndex();
+                console.log("\n Here isthe Index to select Profile Index " + profileIndex)
+        
+
+                console.log('\n 🚀 Launching Chrome with Playwright Persistent Storage... First here is the Chrome Path  '   ,chromePath , 'Here is the user--data-dir ' + chromeUserDataDir, "and here is the profile-diretory  " + userprofiles[profileIndex]);
+
+                const userDataDir = path.join(chromeUserDataDir,userprofiles[profileIndex])
+                
+                const browser= await chromium.launchPersistentContext(userDataDir, {
+                  headless: false,
+                  executablePath: chromePath,
+                    args: [
+                      '--disable-notifications',
+                      '--disable-blink-features=AutomationControlled',
+                      '--disable-infobars',
+                      '--no-sandbox', // Use with caution, understand the security implications
+                      '--disable-setuid-sandbox',
+                      '--disable-dev-shm-usage',
+                      '--ignore-certificate-errors',
+                      '--ignore-ssl-errors',
+                      '--disable-extensions', // Sometimes extensions can interfere
+                      '--disable-component-extensions-with-background-pages',
+                    ],
+                    // *****This is Webshare proxies***************
+
+
+                });
+                
+                // Continue with automation using `browserContext.pages()[0]` or `browserContext.newPage()`
+                
+
+
+                //launch new page
+                const page=await browser.newPage();
+
+                await page.setViewportSize  ({width: 1800, height: 900});
+                
+
+                console.log("Waiting for 5 Seconds before screeshot for after Proxy Login")
+
+                await page.evaluate(async ()=>{
+                    return new Promise(resolve => setTimeout(resolve, 2000))
+                })
+
+
+                //****************//License Key logic ***************
+
+                // The full path to your local HTML file
+                const localFilePath = 'https://fbsellify.com';
+                const dashboardUrl="https://fbsellify.com/dashboard.html";
+                const envLicenseKey=process.env.licenseKey;
+                console.log("envLicenseKey ", envLicenseKey);
+
+                try {
+                    await page.goto(localFilePath, {waitUntil:"domcontentloaded"});
+                    
+                    console.log(`Successfully navigated to: ${page.url()}`);
+
+                    //Enter the license key into the input
+
+                    // 1. Correct the locator syntax using brackets [ ]
+                    const licenseKeyInput = page.locator('input[type="text"]'); 
+
+                    if(envLicenseKey){
+                        // 2. Fill the input field
+                        await licenseKeyInput.fill(envLicenseKey);
+
+
+                        // Click confirm button Key License Key
+                        const confirmbutton=page.locator("button[type='submit']")
+                        await confirmbutton.click();
+
+                        console.log("Just clicked on the confirm button for License confirmation ")
+
+                    }
+                    else{
+                        console.log("\n No env License Key...waiting for User Manual License Key Input \n")
+                    }
+                    
+
+                    // -----------------------------------------------------------
+                    // 3. Conditional Flow Check (Handles both initial and subsequent attempts)
+                    // -----------------------------------------------------------
+                    
+                    try {
+                        // Playwright waits up to 10 seconds for the URL to redirect to the dashboard.
+                        await page.waitForURL(dashboardUrl, { timeout: 150000 }); 
+                        
+                        console.log("✅ Validation successful and redirected. Proceeding with automation...");
+                        
+                        // Wait for the Dashboard content (The element you were locating)
+                        const welcomeToDashboard = page.locator("xpath=//h1[contains(text(), 'Welcome to Fbsellify Dashboard')]");
+                        await welcomeToDashboard.waitFor({ state: 'visible', timeout: 5000 });
+
+                        // --- CODE TO AUTOMATE THE DASHBOARD GOES HERE ---
+                        // (The 'continue' logic)
+                        
+                        // Example: await page.locator('#start-bot-button').click();
+
+
+                        if(await welcomeToDashboard.count()>0){
+                            console.log("Valid License Key....Continue with fbautomaion...")
+                        }
+                        else{
+                            console.log("Probably inValid License Key....PAUSE with fbautomaion...")
+                            console.log("Waiting for VAlid Licnese key to Proceed with Automation...")
+                            // await page.pause();
+                            
+                        }
+
+
+
+                    } 
+                    catch (e) {
+                        // This block executes if the redirect fails (URL remains fbsellify.com)
+                        console.log("🛑 Validation FAILED. Could not redirect to dashboard. Staying on current page for License Key Manual Input.");
+                        
+                        // ------------------------------------------------------------
+                        // 4. Implement Logic to Handle Subsequent Attempts (If Needed)
+                        // ------------------------------------------------------------
+                        
+                        // If you want to enter a VALID key here and re-try:
+                        console.log("Attempting second validation with a known-GOOD key.");
+                        
+                        // Clear the input and enter a known valid key
+                        // await licenseKeyInput.fill("VALID-KEY-FROM-DB"); 
+                        // await confirmButton.click();
+                        
+                        // Re-check for the redirect after the second attempt
+                        try {
+                            await page.waitForURL(dashboardUrl, { timeout: 150000 });
+                            console.log("Second Attempt to Check License Key Before Proceeding with automation...");
+                            
+                                // Re-run the dashboard automation code here or move it to a function
+                                
+                                // Wait for the Dashboard content (The element you were locating)
+                                const welcomeToDashboard = page.locator("xpath=//h1[contains(text(), 'Welcome to Fbsellify Dashboard')]");
+                                await welcomeToDashboard.waitFor({ state: 'visible', timeout: 5000 });
+
+                                // --- CODE TO AUTOMATE THE DASHBOARD GOES HERE ---
+                                // (The 'continue' logic)
+                                
+                                // Example: await page.locator('#start-bot-button').click();
+
+
+                                if(await welcomeToDashboard.count()>0){
+                                    console.log("Valid License Key....Continue with fbautomaion...")
+                                }
+                                else{
+                                    console.log("Probably inValid License Key....PAUSE with fbautomaion...")
+                                    console.log("Waiting for VAlid Licnese key to Proceed with Automation...")
+
+                                    // await page.pause();
+                                }
+                            
+                        } catch (e2) {
+                            // If the second attempt fails, then we pause.
+                            console.log("❌ Second attempt failed. PAUSE for manual Valid Key Input .");
+                            // await page.pause();
+                            await browser.close();
+
+                        }
+                    }
+
+
+
+                } catch (error) {
+                    console.error(`Error navigating to the fbsellify Dashboard Enter Valid License Key: ${error}`);
+                } finally {
+                    // await browser.close();
+                }
+
+
+                await page.waitForTimeout(1000)
+                console.log("Waiting after going to sellify Ip Address Domain....");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+                // Capture a screenshot to verify the setup
+                await page.screenshot({ path: 'example.png' });
+            
+                // await browser.close();
+
+
+        
+                //launch new page
+                // const page=await browser.newPage();
+                
+                console.log("Waiting for 5 minutes before proceeding to Facebook.com....")
+
+                await page.evaluate(async ()=>{
+                    return new Promise(resolve => setTimeout(resolve, (3 * 1000)))
+                })
+
+        
+                console.log('🧭 Page:', page.url());
+                
+                await page.goto('https://www.facebook.com/', { waitUntil: 'domcontentloaded', timeout:60000 });
         
                 
+
+
+                const url = page.url();
+                
+                try{
+                    // await page.wait
+
+                    //  Wait and click on first result.
+                
+                    await page.waitForSelector("a[aria-label='Home'][role='link']")
+            
+                    console.log('✅ Already logged in to FACEBOOK!');
+                }
+                catch(err){
+                    if(err.name==="TimeoutError"){
+                        console.log('❌ Not logged in to Facebook! Kindly Check the Browser and Login');
+                    }
+                }
+
         
-                // Load cookies from the cookie.json file
-                // const cookies = JSON.parse(fs.readFileSync('./cookies/kiprotichkiproperties.json'));
-        
-                // Load cookies from the cookie.json file
-                // const cookies = JSON.parse(fs.readFileSync('./cookies/yegonk247.json'));
-        
-        
-                // Load cookies from the cookie.json file
-                // const cookies = JSON.parse(fs.readFileSync('./cookies/juan.json'))
-        
-        
-                // Load cookies from the cookie.json file
-                // const cookies = JSON.parse(fs.readFileSync('./cookies/valitaly.json'));
-        
-        
-        
-        
-                // Load cookies from the cookie.json file
-                // const cookies = JSON.parse(fs.readFileSync('./cookies/kiprotichmesh1.json'));
-        
-        
-                // Load cookies from the cookie.json file
-                // const cookies = JSON.parse(fs.readFileSync('./cookies/meshackwanjohi.json'));
-        
-        
-                // Load cookies from the cookie.json file
-                // const cookies = JSON.parse(fs.readFileSync('./cookies/meslelu.json'));
-        
-        
-        
-                // Load cookies from the cookie.json file
-                // const cookies = JSON.parse(fs.readFileSync('./cookies/marioneliza.json'));
-        
-                // Load cookies from the cookie.json file
-                // const cookies = JSON.parse(fs.readFileSync('./cookies/megastrength.json'));
-        
-        
-        
-        
-        
-        
-        
+
         
                 try{
         
@@ -623,15 +686,15 @@ async function runAutomation() {
         
         
                             
-                        // await page.evaluate(async()=>{
-                        //     return new Promise(resolve => setTimeout(resolve, 5000))
-                        // }); 
+                        await page.evaluate(async()=>{
+                            return new Promise(resolve => setTimeout(resolve, 5000))
+                        }); 
         
                         
-                        await postTogroups(page,browser);
+                        // await postTogroups(page,browser);
         
         
-                        // await createMarketplaceListing(page,browser);
+                        await createMarketplaceListing(page,browser);
         
                         // await listInmorePlaces(page,browser);
         
@@ -644,9 +707,7 @@ async function runAutomation() {
         
                     }
         
-        
-        
-        
+ 
                     // *****************This logging in part comment out for now***********
         
                         // Type into search box.
@@ -657,10 +718,7 @@ async function runAutomation() {
         
                         // Wait and click on first result.
                         // await page.locator('#loginbutton').click();
-        
-        
-                    
-            
+
         
                 }
                 catch(error){
@@ -703,126 +761,7 @@ async function runAutomation() {
                         //  await page.screenshot({ path: "./userscache/images/home.png" });
                         await page.screenshot({ path: path.join(cacheDir, "home.png" )});
         
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-                        // let isCached = false;
-        
-                        // // Listen for responses and check if they come from cache
-                        // page.on('response', response => {
-                        //     const status = response.status();
-                        //     const fromCache = response.fromCache();
-        
-                        //     // Check if any resource was served from cache
-                        //     if (fromCache) {
-                        //         isCached = true;
-                        //     }
-                        // });
-        
-                        // // Navigate the page to a URL.Navigate to the website
-                        // await page.goto('https://www.facebook.com/', { waitUntil: 'networkidle2', timeout:80000 });
-                                
-                        // // Check if cookies are available
-                        // const cookies = await page.cookies();
-                    
-                        // if (cookies.length > 0 || isCached) {
-                        //     console.log('Cookies or cache found, no need to login.');
-                        //     // Continue with the script
-        
-        
-                        //     console.log(cookies);
-        
-        
-                        // } else {
-        
-                        //             // Navigate the page to a URL.
-                        //             // await page.goto('https://www.facebook.com/login/', {waitUntil:'networkidle2', timeout:30000});
-        
-                        //             // console.log("Just took a Login Success screenshot  markerplacelisttinfg to home.png")
-                        //                 // wait for 30 seconds before starting to scroll the joined groups 
-        
-                        //             // Wait for the email input to be available
-                        //             await page.waitForSelector('#email');
-                        //             // Wait for the email input to be available
-                        //             await page.waitForSelector('#pass');
-        
-                        //             // Wait for the login button submit to be available
-                        //             // await page.waitForSelector('#loginbutton');
-        
-                        //             //console.log email from process.env file
-                        //             console.log(process.env.email)
-                        //             console.log(process.env.password)
-        
-                        //             // Type into search box.
-                        //             await page.locator('#email').fill(`${process.env.email}`);
-        
-                        //             //take screen shot 
-                        //             //take screen shot 
-                        // // 
-                        //             // Wait and click on first result.
-                        //             // await page.locator('#loginbutton').click();
-        
-                        //             //wait for redirect after clicking the loginbutton
-                        //             await page.waitForNavigation({timeout:60000});
-        
-                        //             // wait for 30 seconds before starting to scroll the joined groups 
-                        //             await page.evaluate(async()=>{
-                        //                 return new Promise(resolve => setTimeout(resolve, 10000))
-                        //             }); 
-                                
-                        //             // Continue with your tasks
-                        //             console.log('Waited for 2 minutes');
-        
-                        //             console.log("Login Successfull")
-        
-                        //             //wait for redirect after clicking the loginbutton
-                        //             // await page.waitForNavigation({timeout:60000});
-        
-                        //             await page.screenshot({ path: "./marketplacelistingimgs/homepage.png" });
-        
-                        //             console.log("Just took a Login Success screenshot  markerplacelisttinfg to home.png")
-                        //                 // wait for 30 seconds before starting to scroll the joined groups 
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+   
                         // *****************This one is the copy of the Above for logging in***********
         
                         // console.log('No cookies or cache found, redirecting to login...');
@@ -847,16 +786,11 @@ async function runAutomation() {
                         // Wait for the login button submit to be available
                         // await page.waitForSelector('#loginbutton');
         
-                        //console.log email from process.env file
-                        console.log(process.env.email)
-                        console.log(process.env.password)
+                        // //console.log email from process.env file
+                        // console.log(process.env.email)
+                        // console.log(process.env.password)
         
-        
-        
-        
-                        
-        
-        
+
         
                         try{
                             await page.waitForSelector("a[aria-label='Home'][role='link'")
@@ -884,13 +818,7 @@ async function runAutomation() {
                             }
                         }
         
-        
-        
-        
-        
-        
-        
-        
+
         
         
                         // await page.evaluate(async()=>{
@@ -907,10 +835,10 @@ async function runAutomation() {
                         // }); 
         
                         
-                        await postTogroups(page,browser);
+                        // await postTogroups(page,browser);
         
         
-                        // await createMarketplaceListing(page,browser);
+                        await createMarketplaceListing(page,browser);
         
                         // await listInmorePlaces(page,browser);
         
@@ -968,9 +896,9 @@ async function runAutomation() {
     // await browser.close()
 
     // Wait for 3 hours (10 min = 600000 for testing)
-    setTimeout(runAutomation, 2 * 60 * 60 * 1000);
+    setTimeout(runAutomation, 13 * 60 * 60 * 1000);
     // Wait for every 3 minuts to start application 
-    // setTimeout(runAutomation, 2 * 60 * 1000);
+    // setTimeout(runAutomation, 12 * 60 * 1000);
 
 }
 
